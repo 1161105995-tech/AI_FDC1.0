@@ -1,0 +1,35 @@
+{
+  "success" : true,
+  "message" : "OK",
+  "data" : [ {
+    "fieldId" : 1,
+    "fieldCode" : "EXT_DOCFIN_B5236BC7",
+    "documentTypeCode" : "DOC_FIN",
+    "fieldName" : "财务文档特殊字段",
+    "fieldType" : "TEXT",
+    "dictCategoryCode" : null,
+    "requiredFlag" : "Y",
+    "enabledFlag" : "Y",
+    "formSortOrder" : 1,
+    "queryEnabledFlag" : "N",
+    "querySortOrder" : 1,
+    "sourceLevel" : 2,
+    "sourceDocumentTypeCode" : "DOC_FIN",
+    "lastUpdateDate" : "2026-03-26T19:02:46.871507"
+  }, {
+    "fieldId" : 2,
+    "fieldCode" : "EXT_DOCFINVCH_7FBE95E6",
+    "documentTypeCode" : "DOC_FIN_VCH",
+    "fieldName" : "会计凭证特殊字段",
+    "fieldType" : "TEXT",
+    "dictCategoryCode" : null,
+    "requiredFlag" : "N",
+    "enabledFlag" : "Y",
+    "formSortOrder" : 1,
+    "queryEnabledFlag" : "N",
+    "querySortOrder" : 1,
+    "sourceLevel" : 3,
+    "sourceDocumentTypeCode" : "DOC_FIN_VCH",
+    "lastUpdateDate" : "2026-03-26T19:03:04.118232"
+  } ]
+}

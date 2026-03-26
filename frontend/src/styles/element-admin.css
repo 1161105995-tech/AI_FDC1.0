@@ -1,0 +1,114 @@
+﻿:root {
+  --app-bg: #f5f7fa;
+  --panel-bg: #ffffff;
+  --panel-border: #e4e7ed;
+  --text-primary: #303133;
+  --text-regular: #606266;
+  --text-secondary: #909399;
+  --brand-color: #409eff;
+  --success-color: #67c23a;
+  --warning-color: #e6a23c;
+  --danger-color: #f56c6c;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#app {
+  margin: 0;
+  min-height: 100%;
+}
+
+body {
+  font-family:
+    "PingFang SC",
+    "Microsoft YaHei",
+    "Helvetica Neue",
+    Arial,
+    sans-serif;
+  background: var(--app-bg);
+  color: var(--text-primary);
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
+}
+
+.app-page {
+  display: grid;
+  gap: 16px;
+}
+
+.page-section-card {
+  border: 1px solid var(--panel-border);
+  border-radius: 12px;
+}
+
+.page-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.page-toolbar__left,
+.page-toolbar__right {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+}
+
+.page-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.summary-card {
+  border-radius: 12px;
+}
+
+.summary-card__label {
+  color: var(--text-secondary);
+  font-size: 13px;
+}
+
+.summary-card__value {
+  margin-top: 10px;
+  font-size: 28px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.summary-card__meta {
+  margin-top: 8px;
+  color: var(--text-regular);
+  font-size: 12px;
+}
+
+.page-form-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px 16px;
+}
+
+@media (max-width: 1280px) {
+  .page-summary-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 960px) {
+  .page-form-grid,
+  .page-summary-grid {
+    grid-template-columns: 1fr;
+  }
+}

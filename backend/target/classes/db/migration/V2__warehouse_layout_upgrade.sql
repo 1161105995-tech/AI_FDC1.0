@@ -1,0 +1,27 @@
+﻿ALTER TABLE wh_warehouse ADD COLUMN IF NOT EXISTS area_size NUMERIC(12, 2);
+ALTER TABLE wh_warehouse ADD COLUMN IF NOT EXISTS photo_url VARCHAR(255);
+
+ALTER TABLE wh_area ADD COLUMN IF NOT EXISTS start_x INTEGER DEFAULT 0;
+ALTER TABLE wh_area ADD COLUMN IF NOT EXISTS start_y INTEGER DEFAULT 0;
+ALTER TABLE wh_area ADD COLUMN IF NOT EXISTS width INTEGER DEFAULT 620;
+ALTER TABLE wh_area ADD COLUMN IF NOT EXISTS height INTEGER DEFAULT 260;
+ALTER TABLE wh_area ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
+
+ALTER TABLE wh_rack ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
+
+UPDATE wh_warehouse
+SET area_size = COALESCE(area_size, 260.00),
+    updated_at = COALESCE(updated_at, CURRENT_TIMESTAMP)
+WHERE area_size IS NULL OR updated_at IS NULL;
+
+UPDATE wh_area
+SET start_x = COALESCE(start_x, 0),
+    start_y = COALESCE(start_y, 0),
+    width = COALESCE(width, 620),
+    height = COALESCE(height, 260),
+    updated_at = COALESCE(updated_at, CURRENT_TIMESTAMP)
+WHERE start_x IS NULL OR start_y IS NULL OR width IS NULL OR height IS NULL OR updated_at IS NULL;
+
+UPDATE wh_rack
+SET updated_at = COALESCE(updated_at, CURRENT_TIMESTAMP)
+WHERE updated_at IS NULL;
