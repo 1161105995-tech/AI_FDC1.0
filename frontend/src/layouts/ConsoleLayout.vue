@@ -27,15 +27,15 @@
           <el-sub-menu index="/base-data">
             <template #title>
               <el-icon><Files /></el-icon>
-              <span>基础数据维护</span>
+              <span>配置中心</span>
             </template>
-            <el-menu-item index="/base-data/warehouse">库房管理</el-menu-item>
-            <el-menu-item index="/base-data/document-types">档案类型管理</el-menu-item>
-            <el-menu-item index="/base-data/dictionaries">字典管理</el-menu-item>
-            <el-menu-item index="/base-data/document-organizations">档案组织管理</el-menu-item>
-            <el-menu-item index="/base-data/archive-flow-rules">归档规则管理</el-menu-item>
             <el-menu-item index="/base-data/company-projects">公司/项目管理</el-menu-item>
+            <el-menu-item index="/base-data/document-organizations">文档组织管理</el-menu-item>
+            <el-menu-item index="/base-data/document-types">文档类型管理</el-menu-item>
+            <el-menu-item index="/base-data/archive-flow-rules">归档规则管理</el-menu-item>
+            <el-menu-item index="/base-data/warehouse">库房管理</el-menu-item>
             <el-menu-item index="/base-data/company-project-dictionaries">公司/项目字典</el-menu-item>
+            <el-menu-item index="/base-data/dictionaries">字典管理</el-menu-item>
           </el-sub-menu>
 
           <el-sub-menu index="/archive-management">
@@ -45,6 +45,7 @@
             </template>
             <el-menu-item index="/archive-management/create">发起归档</el-menu-item>
             <el-menu-item index="/archive-management/transfer">发起移交</el-menu-item>
+            <el-menu-item index="/archive-management/transfer-query">移交记录查询</el-menu-item>
             <el-menu-item index="/archive-management/ai-search">AI+档案</el-menu-item>
             <el-menu-item index="/archive-management/query">档案查询</el-menu-item>
             <el-menu-item index="/archive-management/borrow">借阅文档</el-menu-item>
@@ -55,6 +56,10 @@
           <el-menu-item index="/governance">
             <el-icon><Setting /></el-icon>
             <span>流程规则与 AI 治理</span>
+          </el-menu-item>
+          <el-menu-item index="/workflow">
+            <el-icon><List /></el-icon>
+            <span>工作流管理</span>
           </el-menu-item>
         </el-menu>
       </el-scrollbar>

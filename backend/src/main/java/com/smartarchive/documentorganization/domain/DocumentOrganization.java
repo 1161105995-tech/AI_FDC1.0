@@ -18,7 +18,7 @@ public class DocumentOrganization {
     private String countryCode;
     private String cityCode;
     private String enabledFlag;
-    @TableLogic(value = "Y", delval = "N")
+    @TableLogic(value = "N", delval = "Y")
     private String deleteFlag;
     private Long createdBy;
     private LocalDateTime creationDate;

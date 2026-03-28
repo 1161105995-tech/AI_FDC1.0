@@ -20,4 +20,6 @@ public class ArchiveQueryCommand {
     private String sourceSystem;
     private String documentOrganizationCode;
     private Map<String, String> extFilters;
+    private Integer page = 1;
+    private Integer pageSize = 20;
 }

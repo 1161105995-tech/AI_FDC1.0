@@ -4,10 +4,14 @@
       <div class="toolbar">
         <el-form :inline="true" :model="query" class="query-form">
           <el-form-item label="文档组织编码">
-            <el-input v-model.trim="query.keyword" placeholder="请输入编码" clearable />
+            <el-select v-model="query.keyword" placeholder="请选择编码" clearable filterable allow-create>
+              <el-option v-for="item in documentOrganizationOptions" :key="item.code" :label="item.code" :value="item.code" />
+            </el-select>
           </el-form-item>
           <el-form-item label="文档组织名称">
-            <el-input v-model.trim="query.documentOrganizationName" placeholder="请输入名称" clearable />
+            <el-select v-model="query.documentOrganizationName" placeholder="请选择名称" clearable filterable allow-create>
+              <el-option v-for="item in documentOrganizationOptions" :key="item.name" :label="item.name" :value="item.name" />
+            </el-select>
           </el-form-item>
           <el-form-item label="国家">
             <el-select v-model="query.countryCode" placeholder="全部" clearable style="width: 160px" @change="handleQueryCountryChange">
@@ -146,6 +150,7 @@ const countries = ref<CountryOption[]>([])
 const allCities = ref<DocumentOrganizationCityOption[]>([])
 const queryCities = ref<DocumentOrganizationCityOption[]>([])
 const formCities = ref<DocumentOrganizationCityOption[]>([])
+const documentOrganizationOptions = ref<Array<{code: string, name: string}>>([])
 
 const flagOptions = [
   { label: '启用', value: 'Y' },
@@ -232,6 +237,11 @@ const loadList = async () => {
     cityCode: query.cityCode || undefined,
     enabledFlag: query.enabledFlag || undefined
   })
+  // 更新文档组织选项
+  documentOrganizationOptions.value = items.value.map(item => ({
+    code: item.documentOrganizationCode,
+    name: item.documentOrganizationName
+  }))
 }
 
 const loadMeta = async () => {

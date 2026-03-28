@@ -26,7 +26,6 @@ mybatis-plus:
   configuration:
     map-underscore-to-camel-case: true
   mapper-locations: classpath*:mapper/**/*.xml
-  type-aliases-package: com.smartarchive.**
   global-config:
     db-config:
       logic-delete-field: deleted
@@ -47,3 +46,11 @@ archive:
     tessdata-dir: D:/AI project/AI-search/ocr/tessdata
     pdf-dpi: 300
     timeout-seconds: 180
+
+knowledge-graph:
+  neo4j:
+    enabled: false
+    uri:
+    username:
+    password:
+    database: neo4j

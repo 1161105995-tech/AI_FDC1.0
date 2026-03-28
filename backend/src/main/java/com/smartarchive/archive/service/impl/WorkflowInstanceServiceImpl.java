@@ -2,13 +2,13 @@ package com.smartarchive.archive.service.impl;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.smartarchive.archive.domain.WorkflowInstance;
-import com.smartarchive.archive.mapper.WorkflowInstanceMapper;
+import com.smartarchive.archive.mapper.ArchiveWorkflowInstanceMapper;
 import com.smartarchive.archive.service.WorkflowInstanceService;
 import java.time.LocalDateTime;
 import org.springframework.stereotype.Service;
 
 @Service
-public class WorkflowInstanceServiceImpl extends ServiceImpl<WorkflowInstanceMapper, WorkflowInstance> implements WorkflowInstanceService {
+public class WorkflowInstanceServiceImpl extends ServiceImpl<ArchiveWorkflowInstanceMapper, WorkflowInstance> implements WorkflowInstanceService {
     @Override
     public WorkflowInstance start(String definitionCode, String businessKey, String businessType, String currentNode) {
         WorkflowInstance instance = new WorkflowInstance();

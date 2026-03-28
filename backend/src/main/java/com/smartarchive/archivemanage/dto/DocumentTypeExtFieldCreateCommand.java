@@ -10,6 +10,7 @@ public class DocumentTypeExtFieldCreateCommand {
     @NotBlank
     private String fieldType;
     private String dictCategoryCode;
+    private String semanticCode;
     private String requiredFlag = "N";
     private String enabledFlag = "Y";
     private Integer formSortOrder = 1;

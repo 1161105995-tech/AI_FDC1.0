@@ -549,10 +549,16 @@ export interface ArchiveAiParseResult {
   suggestedCarrierTypeCode?: string
   documentName?: string
   businessCode?: string
+  companyProjectCode?: string
+  companyProjectName?: string
+  beginPeriod?: string
+  endPeriod?: string
+  documentDate?: string
   sourceSystem?: string
   aiSummary?: string
   extractedTextPreview?: string
   confidence?: number
+  parseExplain?: string
   extendedValues?: Record<string, string>
 }
 
@@ -588,6 +594,9 @@ export interface ArchiveRecordSummary {
   archiveDestination?: string
   originPlace?: string
   carrierTypeCode: string
+  bindVolumeCode?: string
+  currentWarehouseCode?: string
+  currentLocationCode?: string
   aiArchiveSummary?: string
   documentOrganizationCode: string
   retentionPeriodYears: number
@@ -604,6 +613,9 @@ export interface ArchiveRecordSummary {
 export interface ArchiveQueryResult {
   records: ArchiveRecordSummary[]
   queryFields: DocumentTypeExtField[]
+  total: number
+  page: number
+  pageSize: number
 }
 
 export interface ArchiveAskResult {
@@ -667,4 +679,122 @@ export interface AiModelConfig {
 export interface AiModelConnectionTestResult {
   status: string
   message: string
+}
+
+export interface BindArchiveCandidate {
+  archiveId: number
+  archiveCode: string
+  documentName: string
+  documentTypeCode: string
+  companyProjectCode: string
+  businessCode?: string
+  beginPeriod?: string
+  endPeriod?: string
+  archiveStatus: string
+  carrierTypeCode: string
+  bindVolumeCode?: string
+}
+
+export interface BindVolumeItem {
+  itemId?: number
+  archiveId: number
+  archiveCode: string
+  documentName: string
+  sortNo: number
+  primaryFlag: 'Y' | 'N'
+  bindReason?: string
+}
+
+export interface BindVolume {
+  volumeId?: number
+  bindVolumeCode?: string
+  volumeTitle: string
+  bindRuleKey?: string
+  carrierTypeCode: string
+  archiveCount: number
+  totalPageCount: number
+  totalCopyCount: number
+  bindStatus: string
+  remark?: string
+  items: BindVolumeItem[]
+}
+
+export interface BindBatch {
+  bindBatchId: number
+  bindBatchCode: string
+  bindMode: string
+  bindStatus: string
+  bindRemark?: string
+  guidedStorageFlag: 'Y' | 'N'
+  volumeCount: number
+  archiveCount: number
+  nextAction: string
+  creationDate: string
+  volumes: BindVolume[]
+}
+
+export interface BindOptions {
+  bindModes: LabelValueOption[]
+  candidates: BindArchiveCandidate[]
+}
+
+export interface BindPreviewResult {
+  bindMode: string
+  groupCount: number
+  archiveCount: number
+  groups: BindVolume[]
+}
+
+export interface StorageBatchItem {
+  storageItemId: number
+  itemType: 'VOLUME' | 'ARCHIVE'
+  volumeId?: number
+  archiveId?: number
+  bindVolumeCode?: string
+  archiveCode?: string
+  locationCode: string
+  resultStatus: string
+  errorMessage?: string
+  storedAt?: string
+}
+
+export interface StorageBatch {
+  storageBatchId: number
+  storageBatchCode: string
+  sourceType: string
+  sourceBindBatchCode?: string
+  warehouseCode: string
+  operatorName: string
+  storageStatus: string
+  remark?: string
+  createdAt: string
+  items: StorageBatchItem[]
+}
+
+export interface StorageLedger {
+  ledgerId: number
+  ledgerCode: string
+  storageBatchCode: string
+  itemType: 'VOLUME' | 'ARCHIVE'
+  bindBatchCode?: string
+  bindVolumeCode?: string
+  archiveCode?: string
+  warehouseCode: string
+  locationCode: string
+  actionType: string
+  resultStatus: string
+  operatorName: string
+  operationTime: string
+  operationSummary: string
+}
+
+export interface StorageOptions {
+  sourceTypes: LabelValueOption[]
+  warehouses: LabelValueOption[]
+  locations: LabelValueOption[]
+}
+
+export interface StorageQueryResult {
+  volumes: BindVolume[]
+  archives: BindArchiveCandidate[]
 }

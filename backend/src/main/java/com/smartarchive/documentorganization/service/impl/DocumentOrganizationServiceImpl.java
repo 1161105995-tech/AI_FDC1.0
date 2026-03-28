@@ -40,7 +40,7 @@ public class DocumentOrganizationServiceImpl implements DocumentOrganizationServ
     @Override
     public List<DocumentOrganizationSummaryResponse> list(String keyword, String documentOrganizationName, String countryCode, String cityCode, String enabledFlag) {
         return documentOrganizationMapper.selectList(new LambdaQueryWrapper<DocumentOrganization>()
-                .eq(DocumentOrganization::getDeleteFlag, "Y")
+                .eq(DocumentOrganization::getDeleteFlag, "N")
                 .like(StringUtils.hasText(keyword), DocumentOrganization::getDocumentOrganizationCode, keyword == null ? null : keyword.trim())
                 .like(StringUtils.hasText(documentOrganizationName), DocumentOrganization::getDocumentOrganizationName, documentOrganizationName == null ? null : documentOrganizationName.trim())
                 .eq(StringUtils.hasText(countryCode), DocumentOrganization::getCountryCode, trimToNull(countryCode))
@@ -61,7 +61,7 @@ public class DocumentOrganizationServiceImpl implements DocumentOrganizationServ
     @Override
     public List<CountryResponse> listCountries() {
         return countryMapper.selectList(new LambdaQueryWrapper<Country>()
-                .eq(Country::getDeleteFlag, "Y")
+                .eq(Country::getDeleteFlag, "N")
                 .eq(Country::getEnabledFlag, "Y")
                 .orderByAsc(Country::getSortOrder)
                 .orderByAsc(Country::getCountryCode))
@@ -73,7 +73,7 @@ public class DocumentOrganizationServiceImpl implements DocumentOrganizationServ
     @Override
     public List<DocumentOrganizationCityResponse> listCities(String countryCode) {
         return documentOrganizationCityMapper.selectList(new LambdaQueryWrapper<DocumentOrganizationCity>()
-                .eq(DocumentOrganizationCity::getDeleteFlag, "Y")
+                .eq(DocumentOrganizationCity::getDeleteFlag, "N")
                 .eq(DocumentOrganizationCity::getEnabledFlag, "Y")
                 .eq(StringUtils.hasText(countryCode), DocumentOrganizationCity::getCountryCode, trimToNull(countryCode))
                 .orderByAsc(DocumentOrganizationCity::getSortOrder)
@@ -108,7 +108,7 @@ public class DocumentOrganizationServiceImpl implements DocumentOrganizationServ
         entity.setCountryCode(countryCode);
         entity.setCityCode(cityCode);
         entity.setEnabledFlag(command.getEnabledFlag().trim());
-        entity.setDeleteFlag("Y");
+        entity.setDeleteFlag("N");
         entity.setCreatedBy(SYSTEM_OPERATOR_ID);
         entity.setCreationDate(now);
         entity.setLastUpdatedBy(SYSTEM_OPERATOR_ID);
@@ -152,7 +152,7 @@ public class DocumentOrganizationServiceImpl implements DocumentOrganizationServ
     public void delete(String documentOrganizationCode) {
         DocumentOrganization existing = findActiveByCode(requireText(documentOrganizationCode, "documentOrganizationCode"));
         DocumentOrganizationDetailResponse before = toDetail(existing);
-        existing.setDeleteFlag("N");
+        existing.setDeleteFlag("Y");
         existing.setLastUpdatedBy(SYSTEM_OPERATOR_ID);
         existing.setLastUpdateDate(LocalDateTime.now());
         documentOrganizationMapper.updateById(existing);
@@ -180,7 +180,7 @@ public class DocumentOrganizationServiceImpl implements DocumentOrganizationServ
     private void validateCountry(String countryCode) {
         Long count = countryMapper.selectCount(new LambdaQueryWrapper<Country>()
             .eq(Country::getCountryCode, countryCode)
-            .eq(Country::getDeleteFlag, "Y")
+            .eq(Country::getDeleteFlag, "N")
             .eq(Country::getEnabledFlag, "Y"));
         if (count == null || count == 0) {
             throw new BusinessException("countryCode must come from enabled dictionary entries");
@@ -194,7 +194,7 @@ public class DocumentOrganizationServiceImpl implements DocumentOrganizationServ
         Long count = documentOrganizationCityMapper.selectCount(new LambdaQueryWrapper<DocumentOrganizationCity>()
             .eq(DocumentOrganizationCity::getCountryCode, countryCode)
             .eq(DocumentOrganizationCity::getCityCode, cityCode)
-            .eq(DocumentOrganizationCity::getDeleteFlag, "Y")
+            .eq(DocumentOrganizationCity::getDeleteFlag, "N")
             .eq(DocumentOrganizationCity::getEnabledFlag, "Y"));
         if (count == null || count == 0) {
             throw new BusinessException("cityCode must come from enabled dictionary entries under the selected country");
@@ -204,7 +204,7 @@ public class DocumentOrganizationServiceImpl implements DocumentOrganizationServ
     private DocumentOrganization findActiveByCode(String documentOrganizationCode) {
         DocumentOrganization item = documentOrganizationMapper.selectOne(new LambdaQueryWrapper<DocumentOrganization>()
             .eq(DocumentOrganization::getDocumentOrganizationCode, documentOrganizationCode)
-            .eq(DocumentOrganization::getDeleteFlag, "Y")
+            .eq(DocumentOrganization::getDeleteFlag, "N")
             .last("limit 1"));
         if (item == null) {
             throw new BusinessException("Document organization does not exist");
@@ -215,7 +215,7 @@ public class DocumentOrganizationServiceImpl implements DocumentOrganizationServ
     private void ensureCodeAvailable(String documentOrganizationCode, Long ignoreId) {
         DocumentOrganization existing = documentOrganizationMapper.selectOne(new LambdaQueryWrapper<DocumentOrganization>()
             .eq(DocumentOrganization::getDocumentOrganizationCode, documentOrganizationCode)
-            .eq(DocumentOrganization::getDeleteFlag, "Y")
+            .eq(DocumentOrganization::getDeleteFlag, "N")
             .last("limit 1"));
         if (existing != null && !existing.getId().equals(ignoreId)) {
             throw new BusinessException("documentOrganizationCode already exists");

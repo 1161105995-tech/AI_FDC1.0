@@ -1,4 +1,4 @@
-﻿<template>
+<template>
   <div class="app-page warehouse-workbench">
     <div class="warehouse-overview-grid">
       <el-card v-for="card in overviewCards" :key="card.label" shadow="never" class="overview-card">
@@ -64,11 +64,16 @@
             shadow="hover"
             class="warehouse-card"
             :class="{ 'is-active': item.warehouse.warehouseCode === selectedWarehouseCode }"
-            @click="selectWarehouse(item.warehouse.warehouseCode)"
+            @click="viewWarehouseDetail(item)"
           >
             <div class="warehouse-card__body">
               <div class="warehouse-card__image-wrap">
-                <img :src="item.warehouse.photoUrl || defaultWarehouseImage" alt="warehouse" class="warehouse-card__image" />
+                <img 
+                  :src="item.warehouse.photoUrl || defaultWarehouseImage" 
+                  alt="warehouse" 
+                  class="warehouse-card__image" 
+                  @click.stop="openImagePreview(item.warehouse.photoUrl || defaultWarehouseImage)"
+                />
               </div>
               <div class="warehouse-card__content">
                 <div class="warehouse-card__header">
@@ -214,16 +219,17 @@
       </el-col>
     </el-row>
 
-    <el-dialog v-model="dialogs.warehouseForm" :title="warehouseFormMode === 'create' ? '新建库房' : '编辑库房'" width="620px">
+    <el-dialog v-model="dialogs.warehouseForm" :title="warehouseFormMode === 'create' ? '新建库房' : warehouseFormMode === 'edit' ? '编辑库房' : '查看库房详情'" width="620px">
       <el-form label-width="96px">
-        <el-form-item v-if="warehouseFormMode === 'create'" label="库房编码"><el-input v-model.trim="warehouseForm.warehouseCode" /></el-form-item>
-        <el-form-item label="库房名称"><el-input v-model.trim="warehouseForm.warehouseName" /></el-form-item>
-        <el-form-item label="库房类型"><el-input v-model.trim="warehouseForm.warehouseType" /></el-form-item>
-        <el-form-item label="负责人"><el-input v-model.trim="warehouseForm.managerName" /></el-form-item>
-        <el-form-item label="联系电话"><el-input v-model.trim="warehouseForm.contactPhone" /></el-form-item>
-        <el-form-item label="面积(㎡)"><el-input-number v-model="warehouseForm.areaSize" :min="0" :precision="2" class="form-number" /></el-form-item>
-        <el-form-item label="地址"><el-input v-model.trim="warehouseForm.address" /></el-form-item>
-        <el-form-item label="状态"><el-select v-model="warehouseForm.status"><el-option label="启用" value="ACTIVE" /><el-option label="停用" value="INACTIVE" /></el-select></el-form-item>
+        <el-form-item v-if="warehouseFormMode !== 'view'" label="库房编码"><el-input v-model.trim="warehouseForm.warehouseCode" :disabled="warehouseFormMode === 'view'" /></el-form-item>
+        <el-form-item v-else label="库房编码"><el-input :model-value="warehouseForm.warehouseCode" disabled /></el-form-item>
+        <el-form-item label="库房名称"><el-input v-model.trim="warehouseForm.warehouseName" :disabled="warehouseFormMode === 'view'" /></el-form-item>
+        <el-form-item label="库房类型"><el-input v-model.trim="warehouseForm.warehouseType" :disabled="warehouseFormMode === 'view'" /></el-form-item>
+        <el-form-item label="负责人"><el-input v-model.trim="warehouseForm.managerName" :disabled="warehouseFormMode === 'view'" /></el-form-item>
+        <el-form-item label="联系电话"><el-input v-model.trim="warehouseForm.contactPhone" :disabled="warehouseFormMode === 'view'" /></el-form-item>
+        <el-form-item label="面积(㎡)"><el-input-number v-model="warehouseForm.areaSize" :min="0" :precision="2" class="form-number" :disabled="warehouseFormMode === 'view'" /></el-form-item>
+        <el-form-item label="地址"><el-input v-model.trim="warehouseForm.address" :disabled="warehouseFormMode === 'view'" /></el-form-item>
+        <el-form-item label="状态"><el-select v-model="warehouseForm.status" :disabled="warehouseFormMode === 'view'" ><el-option label="启用" value="ACTIVE" /><el-option label="停用" value="INACTIVE" /></el-select></el-form-item>
         <el-form-item label="库房图片">
           <el-upload
             class="warehouse-photo-upload"
@@ -234,16 +240,18 @@
             :file-list="warehousePhotoList"
             :on-change="handleWarehousePhotoChange"
             :on-remove="handleWarehousePhotoRemove"
+            :on-preview="handleWarehousePhotoPreview"
+            :disabled="warehouseFormMode === 'view'"
             accept="image/*"
           >
-            <el-icon><Plus /></el-icon>
+            <el-icon v-if="warehouseFormMode !== 'view'"><Plus /></el-icon>
           </el-upload>
         </el-form-item>
-        <el-form-item label="说明"><el-input v-model.trim="warehouseForm.description" type="textarea" :rows="3" /></el-form-item>
+        <el-form-item label="说明"><el-input v-model.trim="warehouseForm.description" type="textarea" :rows="3" :disabled="warehouseFormMode === 'view'" /></el-form-item>
       </el-form>
       <template #footer>
-        <el-button @click="dialogs.warehouseForm = false">取消</el-button>
-        <el-button type="primary" @click="submitWarehouseForm">保存</el-button>
+        <el-button @click="dialogs.warehouseForm = false">关闭</el-button>
+        <el-button v-if="warehouseFormMode !== 'view'" type="primary" @click="submitWarehouseForm">保存</el-button>
       </template>
     </el-dialog>
 
@@ -341,6 +349,16 @@
         <el-button type="primary" @click="submitLocationEdit">保存</el-button>
       </template>
     </el-dialog>
+
+    <!-- 图片预览对话框 -->
+    <el-dialog v-model="dialogs.imagePreview" title="图片预览" width="800px">
+      <div class="image-preview-container">
+        <img :src="imagePreviewUrl" alt="预览图片" class="preview-image" />
+      </div>
+      <template #footer>
+        <el-button @click="dialogs.imagePreview = false">关闭</el-button>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
@@ -407,8 +425,9 @@ const collapsedRacks = reactive<Record<string, boolean>>({})
 const warehousePhotoList = ref<UploadUserFile[]>([])
 const sortType = ref<'updatedAt' | 'name' | 'locationCount'>('updatedAt')
 
-const dialogs = reactive({ warehouseForm: false, warehouseCopy: false, areaForm: false, areaCopy: false, rackForm: false, rackCopy: false, locationEdit: false })
-const warehouseFormMode = ref<'create' | 'edit'>('create')
+const dialogs = reactive({ warehouseForm: false, warehouseCopy: false, areaForm: false, areaCopy: false, rackForm: false, rackCopy: false, locationEdit: false, imagePreview: false })
+const warehouseFormMode = ref<'create' | 'edit' | 'view'>('create')
+const imagePreviewUrl = ref('')
 const areaFormMode = ref<'create' | 'edit'>('create')
 const rackFormMode = ref<'create' | 'edit'>('create')
 const currentWarehouseActionCode = ref('')
@@ -528,6 +547,12 @@ const handleWarehousePhotoRemove = () => {
   warehousePhotoList.value = []
 }
 
+const handleWarehousePhotoPreview = (file: UploadFile) => {
+  if (file.url) {
+    openImagePreview(file.url)
+  }
+}
+
 const ensureManagementLoaded = async (warehouseCode: string, force = false) => {
   if (!warehouseCode) return
   if (!force && managementMap.value[warehouseCode]) return
@@ -551,6 +576,19 @@ const loadWarehouses = async () => {
 const selectWarehouse = async (warehouseCode: string) => {
   selectedWarehouseCode.value = warehouseCode
   await ensureManagementLoaded(warehouseCode)
+}
+
+const viewWarehouseDetail = (item: WarehouseSummary) => {
+  warehouseFormMode.value = 'view'
+  currentWarehouseActionCode.value = item.warehouse.warehouseCode
+  Object.assign(warehouseForm, item.warehouse)
+  syncWarehousePhotoList(item.warehouse.photoUrl)
+  dialogs.warehouseForm = true
+}
+
+const openImagePreview = (url: string) => {
+  imagePreviewUrl.value = url
+  dialogs.imagePreview = true
 }
 
 const refreshSelectedWarehouse = async () => {
@@ -811,4 +849,28 @@ onMounted(async () => {
 .warehouse-photo-upload :deep(.el-upload--picture-card), .warehouse-photo-upload :deep(.el-upload-list__item) { width: 112px; height: 112px; }
 @media (max-width: 1400px) { .warehouse-overview-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } .warehouse-query-form__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 @media (max-width: 960px) { .warehouse-overview-grid, .warehouse-query-form__grid, .warehouse-card__details { grid-template-columns: 1fr; } .warehouse-card__body, .rack-layer-row { grid-template-columns: 1fr; } .warehouse-card__image-wrap { width: 100%; height: 160px; } .warehouse-card-toolbar { flex-direction: column; align-items: flex-start; } }
+
+/* 图片预览样式 */
+.image-preview-container { display: flex; justify-content: center; align-items: center; padding: 20px; }
+.preview-image { max-width: 100%; max-height: 500px; object-fit: contain; }
+
+/* 图片点击效果 */
+.warehouse-card__image { cursor: pointer; transition: transform 0.2s ease; }
+.warehouse-card__image:hover { transform: scale(1.05); }
+
+/* 修复上传组件的预览功能 */
+.warehouse-photo-upload :deep(.el-upload-list__item-preview) {
+  cursor: pointer;
+}
+
+.warehouse-photo-upload :deep(.el-upload-list__item-actions) {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+}
+
+.warehouse-photo-upload :deep(.el-upload-list__item-preview:hover) {
+  color: var(--brand-color);
+}
 </style>

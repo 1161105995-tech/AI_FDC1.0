@@ -31,36 +31,46 @@
           返回
         </el-button>
 
-        <div class="search-top__input search-top__textarea">
-          <div class="search-top__icon">
-            <el-icon><Search /></el-icon>
+        <div class="search-container">
+          <div class="search-top__input search-top__textarea">
+            <div class="search-top__icon">
+              <el-icon><Search /></el-icon>
+            </div>
+            <el-input
+              v-model="keyword"
+              type="textarea"
+              resize="none"
+              maxlength="500"
+              show-word-limit
+              :autosize="{ minRows: 3, maxRows: 5 }"
+              placeholder="请输入自然语言问题或关键词，例如：借阅档案超期怎么处理、查询 2024 年合同归档制度、总结一下移交材料要求"
+              @keyup.enter.ctrl.prevent="submitSearch"
+            />
+            <div class="search-mode-integrated">
+              <span class="meta-label">搜索模式</span>
+              <div class="search-mode-toggle">
+                <button 
+                  v-for="mode in searchModes" 
+                  :key="mode.value"
+                  :class="['mode-button', { 'active': activeMode === mode.value }]"
+                  @click="activeMode = mode.value; handleModeChange()"
+                >
+                  {{ mode.label }}
+                </button>
+              </div>
+            </div>
+            <div class="search-top__hint">按 `Ctrl + Enter` 发起搜索，也可以直接切换模式后再次检索。</div>
           </div>
-          <el-input
-            v-model="keyword"
-            type="textarea"
-            resize="none"
-            maxlength="500"
-            show-word-limit
-            :autosize="{ minRows: 3, maxRows: 5 }"
-            placeholder="请输入自然语言问题或关键词，例如：借阅档案超期怎么处理、查询 2024 年合同归档制度、总结一下移交材料要求"
-            @keyup.enter.ctrl.prevent="submitSearch"
-          />
-          <div class="search-top__hint">按 `Ctrl + Enter` 发起搜索，也可以直接切换模式后再次检索。</div>
-        </div>
 
-        <div class="search-top__actions">
-          <el-button type="primary" size="large" @click="submitSearch">搜索</el-button>
-          <el-button size="large" @click="clearKeyword">清空</el-button>
-          <el-button size="large" @click="goTraditionalSearch">传统文档搜索</el-button>
+          <div class="search-buttons">
+            <el-button type="primary" size="large" @click="submitSearch">搜索</el-button>
+            <el-button size="large" @click="clearKeyword">清空</el-button>
+            <el-button size="large" @click="goTraditionalSearch">传统文档搜索</el-button>
+          </div>
         </div>
       </div>
 
       <div class="search-top__meta">
-        <div class="mode-switch">
-          <span class="meta-label">搜索模式</span>
-          <el-segmented v-model="activeMode" :options="searchModes" @change="handleModeChange" />
-        </div>
-
         <div class="recognition-panel">
           <el-tag type="primary" effect="light">已识别：{{ modeLabelMap[activeMode] }}</el-tag>
           <el-tag type="success" effect="light">检索范围：{{ scopeDescription }}</el-tag>
@@ -175,16 +185,25 @@
               </div>
             </template>
 
-            <el-alert
-              v-if="lowConfidence"
-              type="warning"
-              show-icon
-              :closable="false"
-              title="当前证据较少，建议结合右侧预览区的原文依据一起判断。"
-              class="low-confidence-alert"
-            />
+            <div class="tabs-head">
+              <el-tabs v-model="activeTab" @tab-change="handleTabChange">
+                <el-tab-pane label="AI答案" name="answer" />
+                <el-tab-pane label="相关文档" name="documents" />
+              </el-tabs>
+            </div>
 
-            <div class="answer-header">
+            <div v-if="activeTab === 'answer'">
+
+              <el-alert
+                v-if="lowConfidence"
+                type="warning"
+                show-icon
+                :closable="false"
+                title="当前证据较少，建议结合右侧预览区的原文依据一起判断。"
+                class="low-confidence-alert"
+              />
+
+              <div class="answer-header">
               <div class="answer-header__copy">
                 <span class="answer-header__eyebrow">AI 总结</span>
                 <h3>{{ answerHeading }}</h3>
@@ -193,29 +212,7 @@
               <div class="answer-header__actions">
                 <el-button @click="focusFirstReference">查看依据</el-button>
                 <el-button @click="copyAnswer">复制答案</el-button>
-                <el-button type="primary" plain @click="focusSearchInput">继续追问</el-button>
                 <el-button type="primary" @click="openSelectedDocument">打开相关文档</el-button>
-              </div>
-            </div>
-
-            <div class="answer-grid">
-              <div class="answer-block">
-                <h4>关键要点</h4>
-                <ul>
-                  <li v-for="point in answerHighlights" :key="point">{{ point }}</li>
-                </ul>
-              </div>
-              <div class="answer-block">
-                <h4>适用范围</h4>
-                <ul>
-                  <li v-for="scope in applicableScopes" :key="scope">{{ scope }}</li>
-                </ul>
-              </div>
-              <div class="answer-block">
-                <h4>风险 / 注意事项</h4>
-                <ul>
-                  <li v-for="risk in answerRisks" :key="risk">{{ risk }}</li>
-                </ul>
               </div>
             </div>
 
@@ -240,79 +237,74 @@
               <el-empty v-else description="当前没有可直接引用的依据文档，建议从下方相关文档继续查看。" />
             </div>
 
-            <div class="follow-up-section">
-              <span class="follow-up-section__label">推荐追问</span>
-              <div class="follow-up-tags">
-                <el-tag
-                  v-for="question in suggestedQuestions"
-                  :key="question"
-                  class="clickable-tag"
-                  effect="plain"
-                  round
-                  @click="applySuggestedQuestion(question)"
-                >
-                  {{ question }}
-                </el-tag>
+            <div class="answer-grid">
+              <div class="answer-block">
+                <h4>关键要点</h4>
+                <ul>
+                  <li v-for="point in answerHighlights" :key="point">{{ point }}</li>
+                </ul>
+              </div>
+              <div class="answer-block">
+                <h4>适用范围</h4>
+                <ul>
+                  <li v-for="scope in applicableScopes" :key="scope">{{ scope }}</li>
+                </ul>
+              </div>
+              <div class="answer-block">
+                <h4>风险 / 注意事项</h4>
+                <ul>
+                  <li v-for="risk in answerRisks" :key="risk">{{ risk }}</li>
+                </ul>
               </div>
             </div>
-          </el-card>
-
-          <el-card shadow="never" class="pane-card tabs-card">
-            <div class="tabs-head">
-              <el-tabs v-model="activeTab" @tab-change="handleTabChange">
-                <el-tab-pane label="AI答案" name="answer" />
-                <el-tab-pane label="相关文档" name="documents" />
-              </el-tabs>
             </div>
 
-            <div v-if="activeTab === 'answer'" class="answer-tab-info">
-              <el-alert type="info" :closable="false" show-icon title="当前为 AI 答案视图，下方依然保留相关文档列表，便于继续查看命中原文。" />
-            </div>
+            <div v-else-if="activeTab === 'documents'">
+              <div v-if="displayedRecords.length" class="document-list">
+                <article
+                  v-for="record in displayedRecords"
+                  :key="record.archiveCode"
+                  class="document-card"
+                  :class="{ 'is-active': selectedDocument?.archiveCode === record.archiveCode }"
+                >
+                  <div class="document-card__head">
+                    <div class="document-card__title">
+                      <button type="button" class="link-button" @click="selectDocument(record)">{{ record.documentName }}</button>
+                      <div class="document-card__meta">
+                        <el-tag size="small">{{ record.documentTypeName || record.archiveTypeCode || '未分类' }}</el-tag>
+                        <el-tag size="small" type="success">{{ record.companyProjectName || '默认项目' }}</el-tag>
+                        <el-tag size="small" :type="relevanceTag(record).type">{{ relevanceTag(record).label }}</el-tag>
+                      </div>
+                    </div>
+                    <span class="document-card__date">{{ formatDocumentDate(record.lastUpdateDate || record.documentDate) }}</span>
+                  </div>
 
-            <div v-if="displayedRecords.length" class="document-list">
-              <article
-                v-for="record in displayedRecords"
-                :key="record.archiveCode"
-                class="document-card"
-                :class="{ 'is-active': selectedDocument?.archiveCode === record.archiveCode }"
-              >
-                <div class="document-card__head">
-                  <div class="document-card__title">
-                    <button type="button" class="link-button" @click="selectDocument(record)">{{ record.documentName }}</button>
-                    <div class="document-card__meta">
-                      <el-tag size="small">{{ record.documentTypeName || record.archiveTypeCode || '未分类' }}</el-tag>
-                      <el-tag size="small" type="success">{{ record.companyProjectName || '默认项目' }}</el-tag>
-                      <el-tag size="small" :type="relevanceTag(record).type">{{ relevanceTag(record).label }}</el-tag>
+                  <div class="document-card__body">
+                    <p class="document-card__summary">{{ summarizeRecord(record) }}</p>
+                    <div class="document-card__reason">
+                      <strong>命中原因</strong>
+                      <ul>
+                        <li>{{ buildHitReason(record).title }}</li>
+                        <li>{{ buildHitReason(record).body }}</li>
+                      </ul>
+                    </div>
+                    <div class="document-card__status">
+                      <span>档案状态：{{ record.archiveStatus || '已归档' }}</span>
+                      <span>附件数：{{ record.attachmentCount }}</span>
                     </div>
                   </div>
-                  <span class="document-card__date">{{ formatDocumentDate(record.lastUpdateDate || record.documentDate) }}</span>
-                </div>
 
-                <div class="document-card__body">
-                  <p class="document-card__summary">{{ summarizeRecord(record) }}</p>
-                  <div class="document-card__reason">
-                    <strong>命中原因</strong>
-                    <ul>
-                      <li>{{ buildHitReason(record).title }}</li>
-                      <li>{{ buildHitReason(record).body }}</li>
-                    </ul>
+                  <div class="document-card__actions">
+                    <el-button @click="selectDocument(record)">查看预览</el-button>
+                    <el-button @click="openDocument(record)">打开原文</el-button>
+                    <el-button @click="focusDocumentEvidence(record)">查看依据</el-button>
+                    <el-button @click="copyDocumentLink(record)">复制链接</el-button>
+                    <el-button @click="toggleFavorite(record)">{{ favorites.has(record.archiveCode) ? '已收藏' : '收藏' }}</el-button>
                   </div>
-                  <div class="document-card__status">
-                    <span>档案状态：{{ record.archiveStatus || '已归档' }}</span>
-                    <span>附件数：{{ record.attachmentCount }}</span>
-                  </div>
-                </div>
-
-                <div class="document-card__actions">
-                  <el-button @click="selectDocument(record)">查看预览</el-button>
-                  <el-button @click="openDocument(record)">打开原文</el-button>
-                  <el-button @click="focusDocumentEvidence(record)">查看依据</el-button>
-                  <el-button @click="copyDocumentLink(record)">复制链接</el-button>
-                  <el-button @click="toggleFavorite(record)">{{ favorites.has(record.archiveCode) ? '已收藏' : '收藏' }}</el-button>
-                </div>
-              </article>
+                </article>
+              </div>
+              <el-empty v-else description="未找到相关文档，建议补充年份、项目名称或文档类型后重新搜索。" class="empty-state" />
             </div>
-            <el-empty v-else description="未找到相关文档，建议补充年份、项目名称或文档类型后重新搜索。" class="empty-state" />
           </el-card>
         </template>
       </main>
@@ -370,7 +362,6 @@
               <el-button type="primary" @click="openDocument(selectedDocument)">打开全文</el-button>
               <el-button @click="downloadDocument(selectedDocument)">下载</el-button>
               <el-button @click="focusDocumentEvidence(selectedDocument)">定位原文段落</el-button>
-              <el-button @click="continueAskWithDocument(selectedDocument)">继续追问此文档</el-button>
               <el-button @click="showMetadata(selectedDocument)">查看元数据</el-button>
             </div>
           </template>
@@ -409,7 +400,7 @@ import type {
   LabelValueOption
 } from '../../types'
 
-type SearchMode = 'qa' | 'document' | 'knowledge'
+type SearchMode = 'qa' | 'document'
 type SortMode = 'relevance' | 'latest' | 'usage' | 'official'
 type TimeRange = 'all' | '7d' | '30d' | '1y' | 'custom'
 
@@ -452,8 +443,7 @@ const filters = reactive({
 
 const searchModes = [
   { label: '智能问答', value: 'qa' },
-  { label: '文档搜索', value: 'document' },
-  { label: '知识检索', value: 'knowledge' }
+  { label: '文档搜索', value: 'document' }
 ]
 
 const timeRangeOptions = [
@@ -473,8 +463,7 @@ const sortOptions = [
 
 const modeLabelMap: Record<SearchMode, string> = {
   qa: '智能问答',
-  document: '文档搜索',
-  knowledge: '知识检索'
+  document: '文档搜索'
 }
 
 const sortLabelMap: Record<SortMode, string> = {
@@ -659,8 +648,6 @@ const previewToc = computed(() => {
   return ['1. 文档摘要', '2. 命中段落', '3. 相关元数据', '4. 扩展字段']
 })
 
-const suggestedQuestions = computed(() => buildSuggestedQuestions(currentQuestionText.value))
-
 watch(displayedRecords, (records) => {
   if (!records.length) {
     selectedDocument.value = null
@@ -684,7 +671,6 @@ async function loadBaseData() {
 
 function inferMode(text: string): SearchMode {
   if (/总结|解释|怎么|为何|区别|要求|流程|规定/.test(text)) return 'qa'
-  if (/制度|知识|范围|版本|差异/.test(text)) return 'knowledge'
   return 'document'
 }
 
@@ -846,10 +832,8 @@ function formatDocumentDate(value?: string) {
 function openDocument(record?: ArchiveRecordSummary | null) {
   const target = record ?? selectedDocument.value
   if (!target) return
-  router.push({
-    path: '/archive-management/query',
-    query: { q: target.documentName, focus: target.archiveCode }
-  })
+  const url = `${window.location.origin}/archive-management/query?q=${encodeURIComponent(target.documentName)}&focus=${target.archiveCode}`
+  window.open(url, '_blank')
 }
 
 function openSelectedDocument() {
@@ -899,19 +883,13 @@ function toggleFavorite(record: ArchiveRecordSummary) {
   favorites.value = next
 }
 
-function applySuggestedQuestion(question: string) {
-  keyword.value = question
-  submitSearch()
-}
+
 
 function downloadDocument(record: ArchiveRecordSummary) {
   ElMessage.success(`已开始准备下载：${record.documentName}`)
 }
 
-function continueAskWithDocument(record: ArchiveRecordSummary) {
-  keyword.value = `基于《${record.documentName}》，请继续解释相关要求`
-  submitSearch()
-}
+
 
 function showMetadata(record: ArchiveRecordSummary) {
   ElMessageBox.alert(
@@ -927,14 +905,7 @@ function showMetadata(record: ArchiveRecordSummary) {
   )
 }
 
-function buildSuggestedQuestions(question: string) {
-  const base = ['这条规则适用于哪些档案类型', '有没有最新版本', '给我原文依据', '帮我列出所需材料', '这份制度和旧版本有什么区别']
-  if (!question) return base
-  if (/借阅/.test(question)) return ['借阅超期后如何补救', '涉密档案能否线上借阅', '归还后是否需要重新申请', '给我原文依据']
-  if (/移交/.test(question)) return ['移交材料包含哪些内容', '移交流程有哪些例外情况', '帮我列出所需材料', '有没有最新版本']
-  if (/归档/.test(question)) return ['归档材料需要哪些字段', '是否有最新归档制度', '给我对应原文依据', '不同项目归档要求是否一致']
-  return base
-}
+
 
 function findOptionName(optionsList: LabelValueOption[], code: string) {
   return optionsList.find(item => item.code === code)?.name ?? code
@@ -1036,6 +1007,89 @@ onMounted(async () => {
   gap: 14px;
 }
 
+.search-container {
+  flex: 1;
+  display: grid;
+  gap: 16px;
+}
+
+.search-mode-integrated {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid rgba(192, 220, 255, 0.5);
+}
+
+.search-mode-toggle {
+  flex: 1;
+  max-width: 400px;
+  display: flex;
+  background: rgba(255, 255, 255, 0.78);
+  border-radius: 24px;
+  padding: 6px;
+  box-shadow: inset 0 0 0 1px rgba(192, 220, 255, 0.9);
+  position: relative;
+  overflow: hidden;
+}
+
+.mode-button {
+  flex: 1;
+  padding: 12px 24px;
+  border: none;
+  background: transparent;
+  border-radius: 20px;
+  font-weight: 600;
+  font-size: 14px;
+  color: #6e8094;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+  z-index: 1;
+}
+
+.mode-button:hover {
+  color: #2d78bc;
+}
+
+.mode-button.active {
+  color: #ffffff;
+  font-weight: 700;
+}
+
+.search-mode-toggle::before {
+  content: '';
+  position: absolute;
+  top: 6px;
+  left: 6px;
+  width: calc(50% - 6px);
+  height: calc(100% - 12px);
+  background: linear-gradient(135deg, #4ba8ff, #63efd0);
+  border-radius: 18px;
+  transition: all 0.3s ease;
+  z-index: 0;
+}
+
+.search-mode-toggle:has(.mode-button:nth-child(2).active)::before {
+  transform: translateX(100%);
+}
+
+.search-buttons {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+  align-items: center;
+}
+
+.search-buttons .el-button {
+  min-width: 120px;
+}
+
+.search-buttons .el-button--primary {
+  min-width: 140px;
+}
+
 .search-top__hero {
   align-items: flex-start;
 }
@@ -1130,10 +1184,7 @@ onMounted(async () => {
   font-size: 12px;
 }
 
-.search-top__actions {
-  display: grid;
-  gap: 10px;
-}
+
 
 .search-top :deep(.el-textarea__inner) {
   min-height: 120px !important;
@@ -1182,20 +1233,7 @@ onMounted(async () => {
   gap: 12px;
 }
 
-.mode-switch {
-  justify-items: center;
-  width: 100%;
-}
-
-.mode-switch :deep(.el-segmented) {
-  width: min(620px, 100%);
-  padding: 6px;
-  border-radius: 18px;
-  background: rgba(255, 255, 255, 0.78);
-  box-shadow: inset 0 0 0 1px rgba(192, 220, 255, 0.9);
-}
-
-.mode-switch :deep(.el-segmented__item) {
+.search-mode-integrated :deep(.el-segmented__item) {
   min-height: 42px;
   font-weight: 700;
 }

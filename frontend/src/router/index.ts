@@ -3,7 +3,7 @@ import ConsoleLayout from '../layouts/ConsoleLayout.vue'
 import CreateArchiveView from '../views/archive-management/CreateArchiveView.vue'
 import AiSearchResultsView from '../views/archive-management/AiSearchResultsView.vue'
 import ArchiveQueryView from '../views/archive-management/ArchiveQueryView.vue'
-import PlaceholderPage from '../views/PlaceholderPage.vue'
+import ArchiveDetailView from '../views/archive-management/ArchiveDetailView.vue'
 import BaseDataArchiveFlowRuleView from '../views/base-data/BaseDataArchiveFlowRuleView.vue'
 import BaseDataCompanyProjectDetailView from '../views/base-data/BaseDataCompanyProjectDetailView.vue'
 import BaseDataCompanyProjectDictionaryView from '../views/base-data/BaseDataCompanyProjectDictionaryView.vue'
@@ -15,6 +15,7 @@ import DocumentTypeManagementView from '../views/base-data/DocumentTypeManagemen
 import BorrowingView from '../views/borrowing/BorrowingView.vue'
 import DashboardView from '../views/dashboard/DashboardView.vue'
 import GovernanceView from '../views/governance/GovernanceView.vue'
+import WorkflowManagementView from '../views/workflow/WorkflowManagementView.vue'
 
 const router = createRouter({
   history: createWebHistory(),
@@ -33,96 +34,7 @@ const router = createRouter({
             breadcrumb: ['首页']
           }
         },
-        {
-          path: 'base-data/warehouse',
-          name: 'base-data-warehouse',
-          component: BaseDataWarehouseView,
-          meta: {
-            title: '库房管理',
-            breadcrumb: ['基础数据维护', '库房管理']
-          }
-        },
-        {
-          path: 'base-data/document-types',
-          name: 'base-data-document-types',
-          component: DocumentTypeManagementView,
-          meta: {
-            title: '档案类型管理',
-            breadcrumb: ['基础数据维护', '档案类型管理']
-          }
-        },
-        {
-          path: 'base-data/dictionaries',
-          name: 'base-data-dictionaries',
-          component: DictionaryManagementView,
-          meta: {
-            title: '字典管理',
-            breadcrumb: ['基础数据维护', '字典管理']
-          }
-        },
-        {
-          path: 'base-data/document-organizations',
-          name: 'base-data-document-organizations',
-          component: BaseDataDocumentOrganizationView,
-          meta: {
-            title: '档案组织管理',
-            breadcrumb: ['基础数据维护', '档案组织管理']
-          }
-        },
-        {
-          path: 'base-data/archive-flow-rules',
-          name: 'base-data-archive-flow-rules',
-          component: BaseDataArchiveFlowRuleView,
-          meta: {
-            title: '归档规则管理',
-            breadcrumb: ['基础数据维护', '归档规则管理']
-          }
-        },
-        {
-          path: 'base-data/company-projects',
-          name: 'base-data-company-project-list',
-          component: BaseDataCompanyProjectListView,
-          meta: {
-            title: '公司/项目管理',
-            breadcrumb: ['基础数据维护', '公司/项目管理']
-          }
-        },
-        {
-          path: 'base-data/company-projects/create',
-          name: 'base-data-company-project-create',
-          component: BaseDataCompanyProjectDetailView,
-          meta: {
-            title: '新建公司/项目',
-            breadcrumb: ['基础数据维护', '公司/项目管理', '新建']
-          }
-        },
-        {
-          path: 'base-data/company-projects/:companyProjectCode/view',
-          name: 'base-data-company-project-view',
-          component: BaseDataCompanyProjectDetailView,
-          meta: {
-            title: '查看公司/项目',
-            breadcrumb: ['基础数据维护', '公司/项目管理', '查看']
-          }
-        },
-        {
-          path: 'base-data/company-projects/:companyProjectCode/edit',
-          name: 'base-data-company-project-edit',
-          component: BaseDataCompanyProjectDetailView,
-          meta: {
-            title: '编辑公司/项目',
-            breadcrumb: ['基础数据维护', '公司/项目管理', '编辑']
-          }
-        },
-        {
-          path: 'base-data/company-project-dictionaries',
-          name: 'base-data-company-project-dictionaries',
-          component: BaseDataCompanyProjectDictionaryView,
-          meta: {
-            title: '公司/项目字典管理',
-            breadcrumb: ['基础数据维护', '公司/项目字典管理']
-          }
-        },
+        {          path: 'base-data/warehouse',          name: 'base-data-warehouse',          component: BaseDataWarehouseView,          meta: {            title: '库房管理',            breadcrumb: ['配置中心', '库房管理']          }        },        {          path: 'base-data/document-types',          name: 'base-data-document-types',          component: DocumentTypeManagementView,          meta: {            title: '文档类型管理',            breadcrumb: ['配置中心', '文档类型管理']          }        },        {          path: 'base-data/dictionaries',          name: 'base-data-dictionaries',          component: DictionaryManagementView,          meta: {            title: '字典管理',            breadcrumb: ['配置中心', '字典管理']          }        },        {          path: 'base-data/document-organizations',          name: 'base-data-document-organizations',          component: BaseDataDocumentOrganizationView,          meta: {            title: '文档组织管理',            breadcrumb: ['配置中心', '文档组织管理']          }        },        {          path: 'base-data/archive-flow-rules',          name: 'base-data-archive-flow-rules',          component: BaseDataArchiveFlowRuleView,          meta: {            title: '归档规则管理',            breadcrumb: ['配置中心', '归档规则管理']          }        },        {          path: 'base-data/company-projects',          name: 'base-data-company-project-list',          component: BaseDataCompanyProjectListView,          meta: {            title: '公司/项目管理',            breadcrumb: ['配置中心', '公司/项目管理']          }        },        {          path: 'base-data/company-projects/create',          name: 'base-data-company-project-create',          component: BaseDataCompanyProjectDetailView,          meta: {            title: '新建公司/项目',            breadcrumb: ['配置中心', '公司/项目管理', '新建']          }        },        {          path: 'base-data/company-projects/:companyProjectCode/view',          name: 'base-data-company-project-view',          component: BaseDataCompanyProjectDetailView,          meta: {            title: '查看公司/项目',            breadcrumb: ['配置中心', '公司/项目管理', '查看']          }        },        {          path: 'base-data/company-projects/:companyProjectCode/edit',          name: 'base-data-company-project-edit',          component: BaseDataCompanyProjectDetailView,          meta: {            title: '编辑公司/项目',            breadcrumb: ['配置中心', '公司/项目管理', '编辑']          }        },        {          path: 'base-data/company-project-dictionaries',          name: 'base-data-company-project-dictionaries',          component: BaseDataCompanyProjectDictionaryView,          meta: {            title: '公司/项目字典管理',            breadcrumb: ['配置中心', '公司/项目字典管理']          }        },
         {
           path: 'archive-management/create',
           name: 'archive-management-create',
@@ -151,13 +63,30 @@ const router = createRouter({
           }
         },
         {
+          path: 'archive-management/detail/:id',
+          name: 'archive-management-detail',
+          component: ArchiveDetailView,
+          meta: {
+            title: '档案详情',
+            breadcrumb: ['档案业务管理', '档案查询', '档案详情']
+          }
+        },
+        {
           path: 'archive-management/transfer',
           name: 'archive-management-transfer',
-          component: PlaceholderPage,
+          component: () => import('../views/receiving/TransferManagementView.vue'),
           meta: {
-            title: '发起移交',
-            breadcrumb: ['档案业务管理', '发起移交'],
-            description: '移交流程页面将在下一阶段补齐，当前可先从首页或业务入口进入流程占位页。'
+            title: '文档移交管理',
+            breadcrumb: ['档案业务管理', '文档移交管理']
+          }
+        },
+        {
+          path: 'archive-management/transfer-query',
+          name: 'archive-management-transfer-query',
+          component: () => import('../views/receiving/TransferQueryView.vue'),
+          meta: {
+            title: '移交记录查询',
+            breadcrumb: ['档案业务管理', '移交记录查询']
           }
         },
         {
@@ -172,7 +101,7 @@ const router = createRouter({
         {
           path: 'archive-management/bind',
           name: 'archive-management-bind',
-          component: PlaceholderPage,
+          component: () => import('../views/archive-management/BindArchiveView.vue'),
           meta: {
             title: '成册整理',
             breadcrumb: ['档案业务管理', '成册整理'],
@@ -182,7 +111,7 @@ const router = createRouter({
         {
           path: 'archive-management/storage',
           name: 'archive-management-storage',
-          component: PlaceholderPage,
+          component: () => import('../views/archive-management/StorageManagementView.vue'),
           meta: {
             title: '入库上架',
             breadcrumb: ['档案业务管理', '入库上架'],
@@ -196,6 +125,15 @@ const router = createRouter({
           meta: {
             title: '流程规则与 AI 治理',
             breadcrumb: ['平台治理', '流程规则与 AI 治理']
+          }
+        },
+        {
+          path: 'workflow',
+          name: 'workflow',
+          component: WorkflowManagementView,
+          meta: {
+            title: '工作流管理',
+            breadcrumb: ['平台治理', '工作流管理']
           }
         }
       ]

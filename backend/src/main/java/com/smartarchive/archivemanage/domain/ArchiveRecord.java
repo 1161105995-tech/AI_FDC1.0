@@ -1,6 +1,7 @@
 package com.smartarchive.archivemanage.domain;
 
 import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableLogic;
 import com.baomidou.mybatisplus.annotation.TableName;
@@ -32,6 +33,12 @@ public class ArchiveRecord {
     private String archiveDestination;
     private String originPlace;
     private String carrierTypeCode;
+    @TableField(exist = false)
+    private String bindVolumeCode;
+    @TableField(exist = false)
+    private String currentWarehouseCode;
+    @TableField(exist = false)
+    private String currentLocationCode;
     private String remark;
     private String aiArchiveSummary;
     private BigDecimal aiParseConfidence;

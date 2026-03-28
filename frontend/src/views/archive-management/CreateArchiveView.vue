@@ -155,6 +155,14 @@
           </div>
 
           <el-form-item label="备注">
+            <el-alert
+              v-if="parseExplainText"
+              :title="parseExplainText"
+              type="info"
+              :closable="false"
+              show-icon
+              class="parse-explain"
+            />
             <el-input v-model="form.remark" type="textarea" :rows="2" placeholder="请输入备注" />
           </el-form-item>
           <el-form-item label="AI档案摘要">
@@ -395,6 +403,7 @@ const electronicAttachments = computed(() => session.value?.attachments.filter(i
 const paperAttachments = computed(() => session.value?.attachments.filter(item => item.attachmentRole === 'PAPER_SCAN') ?? [])
 const showElectronicSection = computed(() => ['ELECTRONIC', 'HYBRID'].includes(form.carrierTypeCode))
 const showPaperSection = computed(() => ['PAPER', 'HYBRID'].includes(form.carrierTypeCode))
+const parseExplainText = computed(() => session.value?.aiParseResult?.parseExplain || '')
 
 const statusTagType = (status?: string) => {
   switch (status) {
@@ -438,14 +447,19 @@ const loadSession = async () => {
   if (!aiResult) return
   if (aiResult.documentName && !form.documentName) form.documentName = aiResult.documentName
   if (aiResult.businessCode && !form.businessCode) form.businessCode = aiResult.businessCode
+  if (aiResult.companyProjectCode && !form.companyProjectCode) form.companyProjectCode = aiResult.companyProjectCode
   if (aiResult.sourceSystem && !form.sourceSystem) form.sourceSystem = aiResult.sourceSystem
   if (aiResult.aiSummary) form.aiArchiveSummary = aiResult.aiSummary
   if (aiResult.beginPeriod && !form.beginPeriod) form.beginPeriod = aiResult.beginPeriod
   if (aiResult.endPeriod && !form.endPeriod) form.endPeriod = aiResult.endPeriod
+  if (aiResult.documentDate && !form.documentDate) form.documentDate = aiResult.documentDate
   if (session.value.carrierTypeCodeGuess && !form.carrierTypeCode) form.carrierTypeCode = session.value.carrierTypeCodeGuess
   if (session.value.documentTypeCodeGuess && !form.documentTypeCode) {
     form.documentTypeCode = session.value.documentTypeCodeGuess
     await handleDocumentTypeChange(form.documentTypeCode)
+  }
+  if (form.companyProjectCode && form.documentTypeCode) {
+    await handleDefaultRefresh()
   }
   applyAiExtValues()
 }
@@ -721,6 +735,8 @@ onMounted(async () => {
 .parse-dialog { display: flex; align-items: center; gap: 16px; }
 .parse-dialog__title { font-weight: 600; color: #24324a; }
 .parse-dialog__desc { margin-top: 6px; font-size: 13px; color: #7a879a; line-height: 1.6; }
+.parse-explain { margin-bottom: 16px; }
+.parse-explain :deep(.el-alert__title) { white-space: pre-line; line-height: 1.7; }
 @media (max-width: 1280px) {
   .flow-track, .form-grid--4 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .span-2 { grid-column: span 2; }

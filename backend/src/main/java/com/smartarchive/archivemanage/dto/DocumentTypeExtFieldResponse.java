@@ -13,6 +13,7 @@ public class DocumentTypeExtFieldResponse {
     private String fieldName;
     private String fieldType;
     private String dictCategoryCode;
+    private String semanticCode;
     private String requiredFlag;
     private String enabledFlag;
     private Integer formSortOrder;

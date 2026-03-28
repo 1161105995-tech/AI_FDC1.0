@@ -9,4 +9,7 @@ import lombok.Data;
 public class ArchiveQueryResponse {
     private List<ArchiveSummaryResponse> records;
     private List<DocumentTypeExtFieldResponse> queryFields;
+    private Long total;
+    private Integer page;
+    private Integer pageSize;
 }
